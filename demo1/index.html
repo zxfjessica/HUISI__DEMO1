@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8"/>
+	<title>index</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+	<link rel="stylesheet" href="jquery.page-chage.css"/>
+	<style>
+		.back{position:absolute; width: 23.7%; height:5.533%; left:76.3125%; top:89.55%;}
+		.close{position:absolute; width: 19.844%; height:12.89%; left:73.3125%; top:13.056%;}
+		.lock{width:100%;height:100%;position: absolute;left: 0;top: 0;}
+		.lock.hide{display: none;}
+		.option-entry{width:100%;height:100%;position: absolute;left: 0;top: 0;}
+		.hide{display: none}
+		
+		.un-lock{
+			animation:unlock 1.3s ;
+			-webkit-animation:unlock 1.3s ;
+		}
+		
+
+		@keyframes unlock
+		{
+			0% {opacity:1;}
+			100% {opacity:0;}
+		}
+
+		@-moz-keyframes mymove /* Firefox */
+		{
+			0% {opacity:1;}
+			100% {opacity:0;}
+		}
+
+		@-webkit-keyframes mymove /* Safari 和 Chrome */
+		{
+			0% {opacity:1;}
+			100% {opacity:0;}
+		}
+
+		@-o-keyframes mymove /* Opera */
+		{
+			0% {opacity:1;}
+			100% {opacity:0;}
+		}
+	</style>
+	<script type="text/javascript">
+		var sSrc = 'images/';
+		
+		var aImg = ['arrow.png','arrowbg.png','empty.png','L1.gif','loading.jpg','lock.png'];
+		for(var i=0;i<4;i++){
+			aImg.push((i+1)+'.jpg');
+		}
+		for(var i=0;i<16;i++){
+			aImg.push((i+1)+'x.jpg');
+			aImg.push('op'+(i+1)+'.png');
+		}
+		for(var i=0;i<aImg.length;i++){
+			aImg[i] = sSrc+aImg[i];
+		}
+
+		preLoadImages(aImg,function(){
+			document.getElementById('myWindow').style.display = 'block';
+		});
+		//图片预加载
+		function preLoadImages(arrImg,fct1){
+			var numDone=0;
+			var numAll=arrImg.length;
+			for(var i=0;i<arrImg.length;i++){
+				var img=new Image();
+				img.src=arrImg[i];
+				img.onload=function(){
+					numAdd(this.src);
+					//console.log(this.src);
+				}
+			}
+			function numAdd(src){
+				numDone++;
+				if(numDone<numAll){
+					//console.log("图片"+src+"加载完毕");
+				}else if(numDone==numAll){
+					console.log("图片全部加载完毕！");
+					fct1();
+				}
+			}
+		}
+	</script>
+</head>
+<body>
+
+<!--img-->
+<div id='myWindow' style="position:absolute;overflow:hidden;width:100%;height:100%;display: none">
+<div full id='slide' style="top:0%;left:0%;">			
+</div>
+		
+</div>
+</body>
+<script style="text/javascript" src="./js/jquery.min.3.3.1.js"></script>
+<script type="text/javascript">
+;(function(win,$){
+	var defaultOptions = {
+		"dragwrapper":"slide",//插件最外层id
+		"pages":[{"imgsrc":'images/1.jpg',"ele":""},//各翻动页面信息
+		{"imgsrc":'images/2.jpg',"ele":""},
+		{"imgsrc":'images/3.jpg',"ele":""},
+		{"imgsrc":'images/4.jpg',"ele":""},],
+		"direction":"y",//翻页方向
+		"stageWidth":640,
+		"stageHeight":1008,
+		"reaction":function(){},
+		"popup":[{"contentsrc":'images/1x.jpg',"backsrc":"images/empty.png","backpos":[416.25,872.25]},{"contentsrc":'images/2x.jpg',"backsrc":"images/empty.png","backpos":[416.25,922.3]},{"contentsrc":'images/3x.jpg',"backsrc":"images/empty.png","backpos":[416.25,872.25]},{"contentsrc":'images/4x.jpg',"backsrc":"images/empty.png","backpos":[416.25,1648.3]}],
+		"slideWidget":true,//是否存在模拟滚动条
+		"slide":{"src":"images/progressbg.png","info":{"w":5,"h":530,"l":620.8,"t":268.27}},//模拟滚动条滑道UI
+		"slider":{"src":"images/progresspoint.png","info":{"w":34,"h":34,"l":606.7,"t":250.89}},//模拟滚动条滑块UI
+		"setmax":200
+	};	
+	var $first;//touchstart
+	var $last;//
+	var parm;
+	var slideWidgetFlag = true;//slide可不可用		
+	$.fn.extend({
+		"chajian":function(options){
+			var $_this = $(this);
+			init(options);
+
+			/*
+			parm:
+				args1:插件最外层元素，
+				args2:
+			 */
+			parm.reaction($_this,openPopUp,parm);//给内容添加动作
+
+
+			function init(options){
+				parm = $.extend({}, defaultOptions,options);
+							
+				$_this.css({"width":"100%","height":"100%","position":"absolute"});
+
+				$_this.append(pageTemplate());
+				$_this.on('touchstart',start);
+				$_this.on('touchend',end);
+			}
+
+
+			//生成页面模板
+			function pageTemplate(){
+				var _tempDom;
+				for(var i=0;i<parm.pages.length;i++){
+					var __DOM__ = '<div id="p'+i+'" class="page" style=" overflow:hidden; top:{{imgtop}}%;left:{{imgleft}}%;">'
+				    +'<img class="images" src="{{imgsrc}}" alt="" />{{ele}}'
+					+'</div>';
+
+
+					__DOM__ = __DOM__.replace('{{imgsrc}}',parm.pages[i].imgsrc);
+					__DOM__ = __DOM__.replace('{{ele}}',parm.pages[i].ele);
+
+					if(parm.direction=='y'){
+						__DOM__ = __DOM__.replace('{{imgtop}}',i*100);
+						__DOM__ = __DOM__.replace('{{imgleft}}',0);
+					}else if(parm.direction=='x'){
+						__DOM__ = __DOM__.replace('{{imgtop}}',0);
+						__DOM__ = __DOM__.replace('{{imgleft}}',i*100);
+					}
+					
+					
+					_tempDom+=__DOM__;
+					
+
+					
+				}
+				return _tempDom;
+			}
+			function start(e){
+				$first = (parm.direction=='y')?e.touches[0].clientY:e.touches[0].clientX;
+				return false;
+			}
+			function end(e){
+				var $dis = 0;//滑动距离
+				$last = (parm.direction=='y')?e.changedTouches[0].clientY:e.changedTouches[0].clientX;
+				if(parm.direction=='y'){
+					var currentPage = parseInt(document.getElementById(parm.dragwrapper).style.top);
+					
+					if($first-$last>30&&(!currentPage||currentPage>-(parm.pages.length-1)*100)){//下一页
+						
+						if((!currentPage&&parm.setmax)||currentPage>-parm.setmax){
+							changePage(500,(currentPage-100)+'%');
+						}
+					}else if($last-$first>30&&currentPage){//上一页
+						changePage(500,(currentPage+100)+'%');
+					}
+				}else if(parm.direction=='x'){
+					if($last<$first){//向上
+						console.log('向左');
+					}else if($last>$first){
+						console.log('向右');
+					}
+				}else{}
+				return false;			
+			}
+
+			function changePage(speed,currentPage){//直接调页面函数
+				
+				$_this.off('touchstart',start);
+				$_this.off('touchend',end);
+				$_this.animate({
+					'top': currentPage},
+					speed, function() {
+					$_this.on('touchstart',start);
+					$_this.on('touchend',end);
+				});
+			}
+
+			//点开的内容模板
+			function contentTemplate(index){
+				var __POPUP__ = '<div id="page" style="position:absolute;left:0%;top:0%;width:100%;height:100%;overflow:hidden;background:#FFFFFF;">'
+								+'<div id="x_w" style="top:0;"><img id="x" style="position:absolute;left:0%;top:0%;" src="{{contentsrc}}" alt="" />'
+								+'<img id="back" style="position:absolute;left:65.9375%;top:91%;width:30.64%;height:7.716%;background:#000" src="{{backsrc}}" alt="" /></div>'
+							+'</div>';
+				var __PROGESS__ = '<img id="slideway" src="{{slidewaysrc}} "  alt=""/><img id="slider" src="{{slidersrc}}" alt=""/>';
+
+				__POPUP__ = __POPUP__.replace('{{contentsrc}}',parm.popup[index-1]['contentsrc']);
+				__POPUP__ = __POPUP__.replace('{{backsrc}}',parm.popup[index-1]['backsrc']);
+
+				__PROGESS__ = __PROGESS__.replace('{{slidewaysrc}}',parm.slide.src);
+				__PROGESS__ = __PROGESS__.replace('{{slidersrc}}',parm.slider.src);
+
+				var __POPUPWRAPPER__ = '<div id="page_container" style="position:absolute;left:0%;top:400%;width:100%;height:100%;background:#FFFFFF;z-index:10">'+__POPUP__+(parm.slideWidget?__PROGESS__:'')+'</div>'
+
+				return __POPUPWRAPPER__;
+			}
+
+			//点击打开内容
+			function openPopUp(index){
+				var popupsize;
+				
+				$_this.append(contentTemplate(index));
+				$('#page_container').css({'top': -parseInt(document.getElementById($_this.attr('id')).style.top)+'%'});
+				$('#page_container #x').css({'opacity':0});
+
+				
+				slideWidgetFlag = (parm.slideWidget)?true:false;
+				if(slideWidgetFlag){
+					
+					setSizeAndPos($('#slider'),parm.slider.info);
+					setSizeAndPos($('#slideway'),parm.slide.info);
+					$('#slider').css({'opacity':0});
+					$('#slideway').css({'opacity':0});
+				}
+				
+				
+				
+				
+				
+				setTimeout(function(){
+					popupsize = document.getElementById('x').clientHeight ;
+					
+					//设置图片的位置
+					$('#page_container #x').css({"height":(popupsize/parm.stageHeight)*100+'%',"width":'100%'});
+					//设置完图片后显示
+					$('#page_container #x').css({'opacity':1});
+					
+					if(slideWidgetFlag){
+						//如果长图没有超出页面
+						slideWidgetFlag = (parseInt(document.getElementById('x').style.height)==100)?false:true;
+					}
+					
+					if(!slideWidgetFlag){
+						$('#page_container').children('#slideway').remove();
+						$('#page_container').children('#slider').remove();
+
+					}else{
+						$('#slider').css({'opacity':1});
+						$('#slideway').css({'opacity':1});
+					}
+
+				},100);
+				
+				//设置返回按钮的位置
+				setPos($('#page_container #back'),parm.popup[index-1]['backpos'][0],parm.popup[index-1]['backpos'][1]);
+
+
+				if(!$('#page_container #back').backclick){
+					$('#page_container #back').on('touchstart',function(){
+						$('#page_container').remove();
+						$_this.on('touchstart',start);
+						$_this.on('touchend',end);
+					});
+					$('#page_container #back').backclick = true;
+				}
+
+				$_this.off('touchstart',start);
+				$_this.off('touchend',end); 
+				$('#x').on('touchstart',contentTouchStartHandler);
+				$('#x').on('touchmove',contentTouchMoveHandler);
+			}
+
+
+			function contentTouchStartHandler(e){
+				$first = (parm.direction=='y')?e.touches[0].clientY:e.touches[0].clientX;
+				return false;
+			}
+			function contentTouchMoveHandler(e){
+				var $dis = 0;//滑动距离
+
+				
+				var sliderOriPos = (parm.slider.info.t/parm.stageHeight)*100;//滑块原始位置
+				var slideWayHeight;//滑道高度
+				var sliderMaxTop;//滑块的最大值
+				var  pagePhase= (100-parseFloat(document.getElementById('x').style.height)).toFixed(2);
+
+				//拖动图片显示滑块时用
+				var slidePos,slideFinalPos;
+				
+				if(slideWidgetFlag){
+					slideWayHeight = percentageToNum(document.getElementById('slideway').style.height);
+					sliderMaxTop = percentagecalu(sliderOriPos,slideWayHeight,'+');
+				}
+				
+
+				$last = (parm.direction=='y')?e.touches[0].clientY:e.touches[0].clientX;
+				if(parm.direction=='y'){//如果是上下滑动
+					var dirtrue = $last-$first;
+					var dir = dirtrue/parm.stageHeight*100;
+					
+					if(parseInt(document.getElementById('x_w').style.top)+dir>0){//如果划回顶部
+						$('#x_w').css({"top":'0%'});
+						
+						if(slideWidgetFlag){
+							$('#slider').css({"top":(parm.slider.info.t/parm.stageHeight)*100+"%"});//滑块
+						}
+					}else if((parseInt(document.getElementById('x_w').style.top)+dir)<100-parseInt(document.getElementById('x').style.height)){//如果到底了
+						
+						$('#x_w').css({"top":(100-parseFloat(document.getElementById('x').style.height)).toFixed(2)+'%'});
+						
+						if(slideWidgetFlag){
+							$('#slider').css({"top":sliderMaxTop});//滑块
+						}
+						
+						
+					}else{
+						
+					
+						var currentTop = parseFloat(document.getElementById('x_w').style.top);
+
+						$('#x_w').css({"top":Number(currentTop)+Number(dir)+'%'});
+
+						if(slideWidgetFlag){
+							slidePos = document.getElementById('slider').style.top;
+							slideFinalPos = percentagecalu(slidePos,percentagecalu(dir,slideWayHeight),'-');
+
+							$('#slider').css({"top":slideFinalPos});
+						}
+						
+						
+					}
+					
+					$first = $last;
+				}else if(parm.direction=='x'){//如果是左右滑动
+					if($last<$first){//向上
+						console.log('向左');
+					}else if($last>$first){
+						console.log('向右');
+					}
+				}else{}
+
+				return false;
+			}
+
+			function percentagecalu(num1,num2,oper){
+				if(oper=='+'){
+					return ((parseFloat(num1)/100+parseFloat(num2)/100)*100).toFixed(3)+'%';
+				}
+				if(oper=='/'){
+					return (((parseFloat(num1)/100)/(parseFloat(num2)/100))*100).toFixed(3)+'%';
+				}
+				if(oper=='-'){
+					return ((parseFloat(num1)/100-parseFloat(num2)/100)*100).toFixed(3)+'%';
+				}
+				return (parseFloat(num1)/100*parseFloat(num2)/100*100).toFixed(3)+'%';
+			}
+			function percentageToNum(percentage){
+				return parseFloat(percentage).toFixed(3);
+			}
+			
+			function setSizeAndPos($obj,info){
+				$obj.css({
+					"position":"absolute",
+					"width":(info.w/parm.stageWidth)*100+'%',
+					"height":(info.h/parm.stageHeight)*100+'%',
+					"left":(info.l/parm.stageWidth)*100+'%',
+					"top":(info.t/parm.stageHeight)*100+'%'
+				});
+			}
+
+			function setPos($obj,l,t){
+				$obj.css({
+					"left":(l/parm.stageWidth)*100+'%',
+					"top":(t/parm.stageHeight)*100+'%'
+				});
+			}
+			
+			return $(this);
+		}
+		
+	})
+	
+	
+	
+	 
+
+
+	
+})(window,jQuery);
+
+
+
+var dom = '<div class="content-pre-entry" style="width: 19.375%; height: 12.3016%; position: absolute; left: 2.60938%; top: 14.0675%;">'
+            	+'<img class="option-entry" src="images/op1.png"/>'
+            	+'<img class="lock hide" src="images/lock.png"/>'
+            +'</div>'
+            +'<div class="content-pre-entry" style="width: 19.375%; height: 12.3016%; position: absolute; left: 27.8984%; top: 14.0675%;">'
+            	+'<img class="option-entry" src="images/op2.png"/>'
+            	+'<img class="lock hide" src="images/lock.png"/>'
+           +' </div>'
+            +'<div class="content-pre-entry" style="width: 19.375%; height: 12.3016%; position: absolute; left: 53.1328%; top: 14.0675%;">'
+            +'	<img class="option-entry" src="images/op3.png"/>'
+            +'	<img class="lock hide" src="images/lock.png"/>'
+            +'</div>'
+            +'<div class="content-pre-entry" style="width: 19.375%; height: 12.3016%; position: absolute; left: 78.2969%; top: 14.0675%;">'
+            	+'<img class="option-entry" src="images/op4.png"/>'
+            	+'<img class="lock hide" src="images/lock.png"/>'
+            +'</div>';
+
+
+$('#slide').chajian({
+	"pages":[{"imgsrc":'images/1.jpg',"arrow":'',"arrowsrc":"images/arrow.png","ele":""},
+	{"imgsrc":'images/2.jpg',"arrow":'',"arrowsrc":"images/arrow.png","ele":""},
+	{"imgsrc":'images/3.jpg',"arrow":'hide',"arrowsrc":"images/arrow.png","ele":dom},
+	{"imgsrc":'images/4.jpg',"arrow":'',"arrowsrc":"images/arrow.png","ele":""},],
+	"reaction":function(wrapper,openpopup,parm){
+		wrapper.children().eq(2).find('.content-pre-entry').on('touchstart',function(){
+			openpopup($(this).index());
+			parm.setmax = 300;
+		});
+
+	},
+	"slideWidget":true,
+	"slide":{"src":"images/progressbg1.png","info":{"w":11,"h":530,"l":617.8,"t":268.27}},
+	"slider":{"src":"images/progresspoint1.png","info":{"w":34,"h":34,"l":606.7,"t":250.89}},
+	"setmax":300
+});
+
+</script>
+</html>
