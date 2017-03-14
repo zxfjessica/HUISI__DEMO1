@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html style="width: 100%;height: 100%;">
+<head>
+	<title></title>
+	<meta charset="utf-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, minimal-ui">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta name="format-detection" content="telephone=no">
+	<link rel="stylesheet" href="./style/jquery.nav-change-img.css"/>
+	<link rel="stylesheet" type="text/css" href="js/load.css">
+    <script language="javascript" src="js/APIWrapper.js" type="text/javascript"></script>
+    <script language="javascript" src="js/SCOFunctions.js" type="text/javascript"></script>
+	<script>
+	
+		window.onload = window.onresize = function(){
+			document.getElementById('fountainTextG').style.display = 'none';
+			document.getElementById('bg').style.display = 'block';
+
+			window.onresize = function(){
+				preLoadImages(['images/bg0.jpg','images/bg1.jpg','images/bg00.jpg']).done(function(){});
+				show(gId('bg'));
+				preImg();
+			};
+			
+
+		};
+
+		function preImg(){
+			var arr = [];
+			for(var i=0;i<11;i++){
+				arr.push('images/bg'+i+'.jpg');
+			}
+			for(var i=1;i<5;i++){
+				arr.push('images/l'+i+'.png');
+				arr.push('images/l'+i+i+'.png');
+			}
+			for(var i=1;i<7;i++){
+				arr.push('images/r'+i+'.png');
+				arr.push('images/r'+i+i+'.png');
+			}
+			for(var i=1;i<3;i++){
+				arr.push('images/nav'+i+'.png');
+				arr.push('images/nav'+i+i+'.png');
+			}
+			arr.push('images/caret.png');
+			preLoadImages(arr).done(function(){});
+			
+		}
+	</script>
+</head>
+
+<body style="width: 100%;height: 100%;" >
+<div id="fountainTextG" style="width:100%;height:100%;background: #fff;"><div id="fountainTextG_1" class="fountainTextG">L</div><div id="fountainTextG_2" class="fountainTextG">o</div><div id="fountainTextG_3" class="fountainTextG">a</div><div id="fountainTextG_4" class="fountainTextG">d</div><div id="fountainTextG_5" class="fountainTextG">i</div><div id="fountainTextG_6" class="fountainTextG">n</div><div id="fountainTextG_7" class="fountainTextG">g</div></div>
+<div id="bg" style="display:none;">
+	<img id="bg_img" src="images/bg0.jpg"/>
+	<img id="start" src="images/bg00.jpg">
+</div>
+<!-- navWidget begin-->
+<div id="content1" style="display: none;width: 100%;height: 84.5%;position:absolute;overflow:hidden"></div>
+<div id="test" style="height: 100%"></div>
+<!-- navWidget end-->
+</body>
+<script style="text/javascript" src="./js/jquery.min.3.3.1.js"></script>
+<script type="text/javascript" src="./js/jquery.imitateScrollBarWidget.js"></script>
+<script type="text/javascript" src="./js/jquery.navWidget.js"></script>
+
+<script type="text/javascript">
+	;(function(win,$){
+		//页面主函数
+		var stageWidth = 640;
+		var stageHeight = 1138;
+		$('#bg_img').css({"height":(900/stageHeight)*100+'%'});
+		$('#start').css({"height":(100/stageHeight)*100+'%'});
+		$('#start').click(function(){
+			$('#bg').hide();
+			$('#content1').show();
+			$('#nav').show();
+			
+		});
+		$('#test').navWidget({
+			"navbtn":[{"id":"nav_left","src":"images/nav1.png","activesrc":"images/nav11.png","info":{'w':219,'h':144,'l':64,'t':964},"optionsnum":4},
+						{"id":"nav_right","src":"images/nav2.png","activesrc":"images/nav22.png","info":{'w':219,'h':144,'l':316,'t':964},"optionsnum":4}],
+			"nav_left":[{"id":"nav11","src":"images/l1.png","activesrc":"images/l11.png","info":{'w':195,'h':144,'l':64,'t':964},"content":'images/bg2.jpg',"contentinfo":{'w':640,'h':1187}},
+						{"id":"nav12","src":"images/l2.png","activesrc":"images/l22.png","info":{'w':195,'h':144,'l':64,'t':964},"content":'images/bg1.jpg',"contentinfo":{'w':640,'h':1020}},
+						{"id":"nav13","src":"images/l3.png","activesrc":"images/l33.png","info":{'w':195,'h':144,'l':64,'t':964},"content":'images/bg3.jpg',"contentinfo":{'w':640,'h':2100}},
+						{"id":"nav14","src":"images/l4.png","activesrc":"images/l44.png","info":{'w':195,'h':144,'l':64,'t':964},"content":'images/bg4.jpg',"contentinfo":{'w':640,'h':1300}}],
+			"nav_right":[{"id":"nav21","src":"images/r1.png","activesrc":"images/r11.png","info":{'w':195,'h':144,'l':64,'t':964},"content":'images/bg5.jpg',"contentinfo":{'w':640,'h':1100}},
+						{"id":"nav22","src":"images/r2.png","activesrc":"images/r22.png","info":{'w':195,'h':144,'l':64,'t':964},"content":'images/bg6.jpg',"contentinfo":{'w':640,'h':2100}},
+						{"id":"nav23","src":"images/r3.png","activesrc":"images/r33.png","info":{'w':195,'h':144,'l':64,'t':964},"content":'images/bg7.jpg',"contentinfo":{'w':640,'h':1900}},
+						{"id":"nav24","src":"images/r4.png","activesrc":"images/r44.png","info":{'w':195,'h':144,'l':64,'t':964},"content":'images/bg8.jpg',"contentinfo":{'w':640,'h':1820}}],
+			"activeItem":{"navbtn":0,"navbtnitem":0},
+			"showContentId":'content1',
+			"stageWidth":640,
+			"stageHeight":1138,
+			"scrollBar":true,
+			"slidewaysrc":"images/slideway.png",//模拟滚动条滑道UI
+			"slidersrc":"images/slider.png",//模拟滚动条滑块UI
+			"slidewayid":"slideway",//模拟滚动条滑道id
+			"sliderid":"slider",//模拟滚动条滑块id
+			"slidersizepos":{"w":34,"h":34,"l":606.7,"t":250.89},//模拟滚动条滑块大小位置
+			"slidewaysizepos":{"w":11,"h":530,"l":618.8,"t":268.27},//模拟滚动条滑块大小位置
+		});
+	})(window,jQuery);
+</script>
+</html>
